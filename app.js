@@ -28,13 +28,10 @@ const clientSecret = process.env.CLIENT_SECRET;
 // })
 
 app.post("/login", function(req,res){
-  res.redirect("/select-building")
+  res.redirect("/register")
 })
 
-app.get("/select-building", (req,res) =>
-{
-  res.render(__dirname + "/public/cleanchan.ejs");
-})
+
 
 
 app.get("/", function (req, res) {
@@ -64,9 +61,14 @@ app.listen(3000, function () {
 });
 
 app.use(session({
-  secret: 'your-secret-key', // Use your session secret key from .env
+  secret: 'your-secret-key',
   resave: false,
   saveUninitialized: true,
+  cookie: {
+    secure: true, // Set to true for HTTPS
+    maxAge: 60000, // Session expires after 60 seconds
+    httpOnly: true,
+  }
 }));
 
 app.use(passport.session());
@@ -137,7 +139,7 @@ app.get('/register', (req, res) => {
 });
 
 
-app.get("/auth/select-building", (req,res) =>
+app.get("/select-building", (req,res) =>
 {
   res.render(__dirname + "/public/cleanchan.ejs");
 })
