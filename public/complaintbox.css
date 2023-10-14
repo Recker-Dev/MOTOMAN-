@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    /* Center the text within the body */
+}
+
+h1 {
+    color: #333;
+    /* Change the heading text color */
+}
+
+.container {
+    margin: 0 auto;
+    /* Center the container horizontally */
+    max-width: 400px;
+    /* Adjust the maximum width as needed */
+    padding: 20px;
+    border: 1px solid #ccc;
+    /* Add a border for better visibility */
+    background-color: #f9f9f9;
+    /* Add a background color */
+}
+
+form {
+    text-align: left;
+    /* Reset text alignment for form elements */
+}
+
+/* Style form elements as needed */
+label {
+    display: block;
+    /* Display labels as block elements */
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+select,
+input[type="radio"],
+input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="radio"] {
+    width: auto;
+    /* Reset width for radio buttons */
+    margin-right: 5px;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    /* Change submit button color */
+    color: #fff;
+    cursor: pointer;
+}

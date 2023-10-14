@@ -6,6 +6,7 @@ const pg = require("pg-promise")();
 require('dotenv').config();
 const passport=require("passport");
 
+let userID;
 
 const dbURL = "postgresql://retool:AbNWheZC9v6z@ep-super-mode-75219061.us-west-2.retooldb.com/retool?sslmode=require"
 
@@ -16,6 +17,7 @@ app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 // Middleware setup
+app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data in the request body
 
 
@@ -40,18 +42,11 @@ app.get("/", function (req, res) {
   res.render(__dirname + "/public/login.ejs");
 });
 
-app.get("/boyshostel", function (req, res) {
-  
-  res.render(__dirname + "/public/boyshostel.ejs");
-});
-
-app.get('/complaint-:block', (req, res) =>{
-  res.render(__dirname + "/public/complaintbox.ejs", {block : req.params.block})
+app.get("/login", (req,res)=>{
+  res.redirect("/")
 })
 
-app.post("/submit-complaint", (res,req) => {
-  req.send("YOUR COMPLAINT HAS BEEN RECIEVED");
-})
+
 
 
 
@@ -121,8 +116,6 @@ passport.use(new GoogleStrategy({
     done(null,user)
   });
 
-
-
  app.get('/auth/google',
   passport.authenticate('google', { scope: ['email', 'profile'] })
 );
@@ -136,8 +129,8 @@ app.get('/auth/google/callback',
   }),function(req, res) {
     // Successful authentication, redirect home.
     console.log(req.user)
-    const googleId = req.user.google_id;
-    res.redirect(`/select-building?google_id=${googleId}`);
+     userID = req.user.google_id;
+    res.redirect(`/select-building&id=${userID}`);
   });
 
 
@@ -147,8 +140,50 @@ app.get('/register', (req, res) => {
 });
 
 
-app.get("/select-building", (req,res) =>
+app.get("/select-building&id=:id", (req,res) =>
 {
-  console.log(req.user)
-  res.render(__dirname + "/public/cleanchan.ejs");
+  res.render(__dirname + "/public/cleanchan.ejs", {id:req.params.id});
 })
+
+
+app.get("/boyshostel&id=:id&buildingtype=:type", function (req, res) {
+  // console.log(req.params.id)
+  // console.log(req.params.type)
+  if (req.params.id == userID){
+  res.render(__dirname + "/public/boyshostel.ejs",{id:req.params.id,type:req.params.type});}
+  else{
+    res.redirect('/login')
+  }
+});
+
+
+
+app.get('/complaint&id=:id&buildingtype=:type&blockno=:block', (req, res) =>{
+  res.render(__dirname + "/public/complaintbox.ejs", {id:req.params.id,type:req.params.type,block : req.params.block})
+})
+
+
+app.post("/submit-complaint&id=:id&buildingtype=:type&blockno=:block", (req,res) => {
+  console.log(req.params.id)
+  const id = req.params.id;
+  console.log(req.params.type)
+  console.log(req.params.block)
+  console.log(req.body.complaintText)
+  complaintText=req.body.complaintText;
+  res.send("YOUR COMPLAINT HAS BEEN RECIEVED");
+
+  db.none(
+    'UPDATE moto SET complainboxdescription = $1 WHERE google_id = $2',
+    [complaintText, id]
+  )
+  .then(() => {
+    // Successful update, send a response or redirect
+    res.send("Your complaint has been received and updated.");
+  })
+  .catch((error) => {
+    // Handle any errors that occur during the database update
+    console.error("Error updating the database:", error);
+    res.status(500).send("Error updating the database");
+  });
+
+});

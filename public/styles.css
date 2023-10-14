@@ -66,37 +66,3 @@ body {
   opacity: 0;
   transition: opacity 0.3s;
 }
-
-.glass-card {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background-color: rgba(24, 27, 19, 0.75);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 48px;
-  transition: all 0.3s ease;
-}
-
-.container-blockselection {
-  display: flex;
-  row-gap: 7rem;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-flex {
-  display: flex;
-  gap: 20rem;
-}
-
-.glass-card:hover {
-  background-color: rgba(3, 6, 9, 0.332);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  transform: translateY(-3px);
-}

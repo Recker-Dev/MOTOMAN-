@@ -1,72 +1,14 @@
 <%- include("header.ejs") %>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            /* Center the text within the body */
-        }
 
-        h1 {
-            color: #333;
-            /* Change the heading text color */
-        }
-
-        .container {
-            margin: 0 auto;
-            /* Center the container horizontally */
-            max-width: 400px;
-            /* Adjust the maximum width as needed */
-            padding: 20px;
-            border: 1px solid #ccc;
-            /* Add a border for better visibility */
-            background-color: #f9f9f9;
-            /* Add a background color */
-        }
-
-        form {
-            text-align: left;
-            /* Reset text alignment for form elements */
-        }
-
-        /* Style form elements as needed */
-        label {
-            display: block;
-            /* Display labels as block elements */
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        select,
-        input[type="radio"],
-        input[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="radio"] {
-            width: auto;
-            /* Reset width for radio buttons */
-            margin-right: 5px;
-        }
-
-        input[type="submit"] {
-            background-color: #007bff;
-            /* Change submit button color */
-            color: #fff;
-            cursor: pointer;
-        }
-    </style>
-
+    <link rel="stylesheet" href="complaintbox.css">
     <h1>CLEANING SERVICES</h1>
 
     <div class="container">
-        <form action="/submit-complaint" method="POST">
-            <label> BLOCK <%= block %></label>
+        <form action="/submit-complaint&id=<%= id  %>&buildingtype=<%= type %>&blockno=<%= block %>" method="POST">
+            <label>
+                <%= type %> BLOCK <%= block %>
+            </label>
             <label for="wing">Wing:</label>
             <select required id="wing" name="wing">
                 <option value="A">A</option>
@@ -76,72 +18,22 @@
 
             <label for="floor">Floor:</label>
             <select required id="floor" name="floor">
-                <option value="1">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
+                <% for (let i=0; i <=7; i++) { %>
+                    <option value="<%= i %>">
+                        <%= i %>
+                    </option>
+                    <% } %>
             </select>
             <br><br>
 
             <label for="roomNumber">Room Number:</label>
             <select required id="roomNumber" name="roomNumber">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="22">22</option>
-                <option value="23">23</option>
-                <option value="24">24</option>
-                <option value="25">25</option>
-                <option value="26">26</option>
-                <option value="27">27</option>
-                <option value="28">28</option>
-                <option value="29">29</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-                <option value="34">34</option>
-                <option value="35">35</option>
-                <option value="36">36</option>
-                <option value="37">37</option>
-                <option value="38">38</option>
-                <option value="39">39</option>
-                <option value="40">40</option>
-                <option value="41">41</option>
-                <option value="42">42</option>
-                <option value="43">43</option>
-                <option value="44">44</option>
-                <option value="45">45</option>
-                <option value="46">46</option>
-                <option value="47">47</option>
-                <option value="48">48</option>
-                <option value="49">49</option>
-                <option value="50">50</option>
-                <option value="51">51</option>
-                <option value="52">52</option>
-                <option value="53">53</option>
+                <% for (let i=1; i <=53; i++) { %>
+                    <option value="<%= i %>">
+                        <%= i %>
+                    </option>
+                    <% } %>
+
             </select>
             <br><br>
 
@@ -153,7 +45,7 @@
             </select>
             <br><br>
 
-            <textarea type="text" rows="4" maxlength='750' required placeholder="Your Complaint"
+            <textarea name="complaintText" type="text" rows="4" maxlength='750' required placeholder="Your Complaint"
                 style="width: 100%;"></textarea>
 
             <br>

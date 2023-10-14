@@ -1,32 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Boys Hostel</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body
-    style="
-      background-image: url(/Images/IMG_20221217_215243_0619.jpg);
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
-    "
-  >
-    <div class="container-blockselection">
-      <h1 style="color: black; text-align: center">BOYS HOSTEL</h1>
-      <section class="card-flex">
-        <a href="/complaint-1"><p class="glass-card">Block 1</p></a>
-        <a href="/complaint-2"><p class="glass-card">Block 2</p></a>
-        <a href="/complaint-3"><p class="glass-card">Block 3</p></a>
-      </section>
-      <section class="card-flex">
-        <a href="/complaint-4"><p class="glass-card">Block 4</p></a>
-        <a href="/complaint-5"><p class="glass-card">Block 5</p></a>
-        <a href="/complaint-6"><p class="glass-card">Block 6</p></a>
-      </section>
-    </div>
-  </body>
-</html>
+<%- include("header.ejs") %>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="boyshostels.css" />
+
+  <div class=" container-blockselection">
+    <h1 style="color: black; text-align: center">BOYS HOSTEL</h1>
+    <section class="card-flex">
+      <% for (let i=1; i <=3; i++) { %>
+
+        <a href="/complaint&id=<%= id  %>&buildingtype=<%= type %>&blockno=<%= i %>">
+          <p class="glass-card">Block <%= i %>
+          </p>
+        </a>
+
+
+        <% } %>
+    </section>
+    <section class="card-flex">
+      <% for (let i=4; i <=6; i++) { %>
+
+        <a href="/complaint&id=<%= id  %>&buildingtype=<%= type %>&blockno=<%= i %>">
+          <p class="glass-card">Block <%= i %>
+          </p>
+        </a>
+
+
+        <% } %>
+    </section>
+  </div>
+
+  <%- include("footer.ejs") %>
