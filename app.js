@@ -35,6 +35,7 @@ app.post("/login", function(req,res){
 
 
 app.get("/", function (req, res) {
+ 
   
   res.render(__dirname + "/public/login.ejs");
 });
@@ -83,12 +84,14 @@ passport.use(new GoogleStrategy({
   },
   function(request, accessToken, refreshToken, profile, done) {
     const googleId = profile.id;
+    
   
     // Check if the user already exists in your database
     db.oneOrNone('SELECT * FROM moto WHERE google_id = $1', [googleId])
       .then(user => {
         if (user) {
           // User already exists, return the user
+          
           return done(null, user);
         } else {
           // User does not exist, create a new user
@@ -128,10 +131,15 @@ passport.use(new GoogleStrategy({
 
 app.get('/auth/google/callback',
   passport.authenticate('google', {
-    successRedirect: '/select-building',
-    failureRedirect: '/auth/google/failure'
-  })
-);
+    failureRedirect: '/login',
+   
+  }),function(req, res) {
+    // Successful authentication, redirect home.
+    console.log(req.user)
+    const googleId = req.user.google_id;
+    res.redirect(`/select-building?google_id=${googleId}`);
+  });
+
 
 app.get('/register', (req, res) => {
   // Redirect to the Google OAuth registration page
@@ -141,5 +149,6 @@ app.get('/register', (req, res) => {
 
 app.get("/select-building", (req,res) =>
 {
+  console.log(req.user)
   res.render(__dirname + "/public/cleanchan.ejs");
 })
