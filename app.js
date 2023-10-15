@@ -156,17 +156,22 @@ app.get("/boyshostel&id=:id&buildingtype=:type", function (req, res) {
 
 
 
-app.get('/complaint&id=:id', (req, res) => {
-  res.render(__dirname + "/public/complaintbox.ejs", { id: req.params.id })
+app.get('/complaint&id=:id&buildingtype=:type&block=:block', (req, res) => {
+  res.render(__dirname + "/public/complaintbox.ejs", { id: req.params.id, type: req.params.type, block: req.params.block })
 })
 
 
-app.post("/submit-complaint&id=:id", (req, res) => {
-  console.log(req.params.id)
+app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) => {
+
   const id = req.params.id;
-  console.log(req.params.type)
-  console.log(req.params.block)
-  console.log(req.body.complaintText)
+  const type = req.params.type;
+  const block = req.params.block;
+
+  const wing = req.body.wing;
+  const floor = req.body.floor;
+  const roomNumber = req.body.roomNumber;
+  const timing = req.body.timing;
+
   complaintText = req.body.complaintText;
 
 
@@ -218,6 +223,12 @@ app.post("/submit-complaint&id=:id", (req, res) => {
           existingComplains[`complaint${newComplaintIndex}`] = {
             text: complaintText,
             status: "open",
+            buildingtype: type,
+            block: block,
+            wing: wing,
+            floor: floor,
+            roomNumber: roomNumber,
+            timing: timing
           };
 
           // Update the "complains" JSON column with the new JSON data
@@ -226,6 +237,7 @@ app.post("/submit-complaint&id=:id", (req, res) => {
             [existingComplains, id]
           )
             .then(() => {
+
               res.redirect("/userinfo&id=" + req.params.id)
             })
             .catch((error) => {
@@ -249,9 +261,10 @@ app.post("/submit-complaint&id=:id", (req, res) => {
 
 app.get("/userinfo&id=:id", (req, res) => {
 
+
   db.one('SELECT complains FROM complaintbox WHERE id = $1', [req.params.id])
     .then((result) => {
-
+      const complains = result ? result.complains : {}; // Use result if it exists, or an empty object
       res.render(__dirname + "/public/userinfo.ejs", { id: req.params.id, complains: result.complains })
     }).catch((error) => {
       console.error("Error fetching existing data from the database:", error);
@@ -266,6 +279,7 @@ app.post("/resolve-complaint&id=:id", (req, res) => {
   const complaintkey = req.body.complaintKey;
   const id = req.params.id;
   console.log(complaintkey);
+  console.log(id);
 
 
   // Build the SQL statement to delete a specific complaint from the "complains" JSON object

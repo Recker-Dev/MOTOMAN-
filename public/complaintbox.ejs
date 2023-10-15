@@ -5,9 +5,9 @@
     <h1>CLEANING SERVICES</h1>
 
     <div class="container">
-        <form action="/submit-complaint&id=<%= id  %>" method="POST">
+        <form action="/submit-complaint&id=<%=id%>&buildingtype=<%=type%>&block=<%=block %>" method="POST">
             <label>
-                BLOCK
+                <%=type %> BLOCK <%=block %>
             </label>
             <label for="wing">Wing:</label>
             <select required id="wing" name="wing">
