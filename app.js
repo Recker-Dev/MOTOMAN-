@@ -184,55 +184,27 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&blockno=:block", (req, res
   //     res.status(500).send("Error updating the database");
   //   });
 
-
-  // Check if the google_id exists in the moto table
-  db.oneOrNone('SELECT * FROM moto WHERE google_id = $1', [googleId])
-    .then(user => {
-      if (user) {
-        // User with the specified google_id exists in the moto table
-        // Insert a new row into the complaintbox table
-        db.none('INSERT INTO complaintbox (google_id) VALUES ($1)', [googleId])
-          .then(() => {
-            // Insertion successful
-            console.log('New row added to complaintbox');
-          })
-          .catch(error => {
-            // Handle insertion error
-            console.error('Error inserting into complaintbox:', error);
-          });
-      } else {
-        // User with the specified google_id does not exist in the moto table
-        console.log('User not found in moto table');
-      }
-    })
-    .catch(error => {
-      // Handle query error
-      console.error('Error querying moto table:', error);
-    });
-
-
-
-
-
-  // Fetch the existing complaints associated with this ID
-  db.one(
-    'SELECT complain_1, complain_2, complain_3 FROM complaintbox WHERE id = $1',
-    [id]
-  )
+  db.one('SELECT complains FROM complaintbox WHERE id = $1', [id])
     .then((result) => {
-      // Determine how many complaints exist (how many columns are used)
-      const existingComplaints = [result.complain_1, result.complain_2, result.complain_3];
-      const complaintCount = existingComplaints.filter(Boolean).length;
+      const existingComplains = result.complains || {}; // Parse the JSON data
+
+
+      // Determine how many complaints exist
+      const complaintCount = Object.keys(existingComplains).length;
 
       if (complaintCount < 3) {
-        // There is space for a new complaint, find the next available column
-        const nextColumnIndex = existingComplaints.findIndex(complaint => !complaint);
-        const columnName = `complain_${nextColumnIndex + 1}`;
+        // There is space for a new complaint
+        // Add the new complaint to the JSON data with a status of "open"
+        const newComplaintIndex = complaintCount + 1;
+        existingComplains[`complaint${newComplaintIndex}`] = {
+          text: complaintText,
+          status: "open",
+        };
 
-        // Update the corresponding column with the new complaint
+        // Update the "complains" JSON column with the new JSON data
         db.none(
-          `UPDATE complaintbox SET ${columnName} = $1 WHERE id = $2`,
-          [complaintText, id]
+          'UPDATE complaintbox SET complains = $1 WHERE id = $2',
+          [existingComplains, id]
         )
           .then(() => {
             res.send("Your complaint has been received and updated.");
@@ -250,6 +222,48 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&blockno=:block", (req, res
       console.error("Error fetching existing data from the database:", error);
       res.status(500).send("Error fetching existing data from the database");
     });
+
+
+
+
+
+
+  // Fetch the existing complaints associated with this ID
+  // db.one(
+  //   'SELECT complain_1, complain_2, complain_3 FROM complaintbox WHERE id = $1',
+  //   [id]
+  // )
+  //   .then((result) => {
+  //     // Determine how many complaints exist (how many columns are used)
+  //     const existingComplaints = [result.complain_1, result.complain_2, result.complain_3];
+  //     const complaintCount = existingComplaints.filter(Boolean).length;
+
+  //     if (complaintCount < 3) {
+  //       // There is space for a new complaint, find the next available column
+  //       const nextColumnIndex = existingComplaints.findIndex(complaint => !complaint);
+  //       const columnName = `complain_${nextColumnIndex + 1}`;
+
+  //       // Update the corresponding column with the new complaint
+  //       db.none(
+  //         `UPDATE complaintbox SET ${columnName} = $1 WHERE id = $2`,
+  //         [complaintText, id]
+  //       )
+  //         .then(() => {
+  //           res.send("Your complaint has been received and updated.");
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error updating the database:", error);
+  //           res.status(500).send("Error updating the database");
+  //         });
+  //     } else {
+  //       // Limit of 3 complaints reached
+  //       res.send("Only 3 complaints are allowed to be open at a time");
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error fetching existing data from the database:", error);
+  //     res.status(500).send("Error fetching existing data from the database");
+  //   });
 
 
 
