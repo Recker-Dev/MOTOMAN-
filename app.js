@@ -156,124 +156,135 @@ app.get("/boyshostel&id=:id&buildingtype=:type", function (req, res) {
 
 
 
-app.get('/complaint&id=:id&buildingtype=:type&blockno=:block', (req, res) => {
-  res.render(__dirname + "/public/complaintbox.ejs", { id: req.params.id, type: req.params.type, block: req.params.block })
+app.get('/complaint&id=:id', (req, res) => {
+  res.render(__dirname + "/public/complaintbox.ejs", { id: req.params.id })
 })
 
 
-app.post("/submit-complaint&id=:id&buildingtype=:type&blockno=:block", (req, res) => {
+app.post("/submit-complaint&id=:id", (req, res) => {
   console.log(req.params.id)
   const id = req.params.id;
   console.log(req.params.type)
   console.log(req.params.block)
   console.log(req.body.complaintText)
   complaintText = req.body.complaintText;
-  // res.send("Complaint updated");
 
-  // db.none(
-  //   'UPDATE complaintbox SET complainboxdescription = $1 WHERE google_id = $2',
-  //   [complaintText, id]
-  // )
-  //   .then(() => {
-  //     // Successful update, send a response or redirect
-  //     res.send("YOUR COMPLAINT HAS BEEN RECIEVED");
-  //   })
-  //   .catch((error) => {
-  //     // Handle any errors that occur during the database update
-  //     console.error("Error updating the database:", error);
-  //     res.status(500).send("Error updating the database");
-  //   });
 
-  db.one('SELECT complains FROM complaintbox WHERE id = $1', [id])
+  db.oneOrNone('SELECT id FROM complaintbox WHERE id = $1', [id])
     .then((result) => {
-      const existingComplains = result.complains || {}; // Parse the JSON data
-
-
-      // Determine how many complaints exist
-      const complaintCount = Object.keys(existingComplains).length;
-
-      if (complaintCount < 3) {
-        // There is space for a new complaint
-        // Add the new complaint to the JSON data with a status of "open"
-        const newComplaintIndex = complaintCount + 1;
-        existingComplains[`complaint${newComplaintIndex}`] = {
-          text: complaintText,
-          status: "open",
-        };
-
-        // Update the "complains" JSON column with the new JSON data
-        db.none(
-          'UPDATE complaintbox SET complains = $1 WHERE id = $2',
-          [existingComplains, id]
-        )
-          .then(() => {
-            res.send("Your complaint has been received and updated.");
-          })
-          .catch((error) => {
-            console.error("Error updating the database:", error);
-            res.status(500).send("Error updating the database");
-          });
+      if (result) {
+        // The id already exists in the complaintbox table, no need to insert it again
+        return proceedWithComplaintHandling();
       } else {
-        // Limit of 3 complaints reached
-        res.send("Only 3 complaints are allowed to be open at a time");
+        // The id doesn't exist in the complaintbox table, insert it
+        return insertIdIntoComplaintBox();
       }
     })
     .catch((error) => {
+      console.error('Error checking id existence in complaintbox:', error);
+      res.status(500).send('Error checking id existence in complaintbox');
+    });
+
+  // Function to insert the id into the complaintbox table
+  function insertIdIntoComplaintBox() {
+    db.none('INSERT INTO complaintbox (id) VALUES ($1)', [id])
+      .then(() => {
+        console.log('New ID added to the complaintbox table.');
+        // Proceed with complaint handling logic
+        return proceedWithComplaintHandling();
+      })
+      .catch((error) => {
+        console.error('Error adding new ID:', error);
+        res.status(500).send('Error adding new ID');
+      });
+  }
+
+
+  function proceedWithComplaintHandling() {
+    // Your existing complaint handling logic here
+    // ...
+    db.one('SELECT complains FROM complaintbox WHERE id = $1', [id])
+      .then((result) => {
+        const existingComplains = result.complains || {}; // Parse the JSON data
+
+
+        // Determine how many complaints exist
+        const complaintCount = Object.keys(existingComplains).length;
+
+        if (complaintCount < 3) {
+          // There is space for a new complaint
+          // Add the new complaint to the JSON data with a status of "open"
+          const newComplaintIndex = complaintCount + 1;
+          existingComplains[`complaint${newComplaintIndex}`] = {
+            text: complaintText,
+            status: "open",
+          };
+
+          // Update the "complains" JSON column with the new JSON data
+          db.none(
+            'UPDATE complaintbox SET complains = $1 WHERE id = $2',
+            [existingComplains, id]
+          )
+            .then(() => {
+              res.redirect("/userinfo&id=" + req.params.id)
+            })
+            .catch((error) => {
+              console.error("Error updating the database:", error);
+              res.status(500).send("Error updating the database");
+            });
+        } else {
+          // Limit of 3 complaints reached
+          res.send("Only 3 complaints are allowed to be open at a time");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching existing data from the database:", error);
+        res.status(500).send("Error fetching existing data from the database");
+      });
+  }
+
+
+
+});
+
+app.get("/userinfo&id=:id", (req, res) => {
+
+  db.one('SELECT complains FROM complaintbox WHERE id = $1', [req.params.id])
+    .then((result) => {
+
+      res.render(__dirname + "/public/userinfo.ejs", { id: req.params.id, complains: result.complains })
+    }).catch((error) => {
       console.error("Error fetching existing data from the database:", error);
       res.status(500).send("Error fetching existing data from the database");
     });
 
+});
 
 
+app.post("/resolve-complaint&id=:id", (req, res) => {
+
+  const complaintkey = req.body.complaintKey;
+  const id = req.params.id;
+  console.log(complaintkey);
 
 
+  // Build the SQL statement to delete a specific complaint from the "complains" JSON object
+  const sql = `
+  UPDATE complaintbox
+  SET complains = complains - '${complaintkey}' -- Remove the key
+  WHERE id = $1
+  `;
 
-  // Fetch the existing complaints associated with this ID
-  // db.one(
-  //   'SELECT complain_1, complain_2, complain_3 FROM complaintbox WHERE id = $1',
-  //   [id]
-  // )
-  //   .then((result) => {
-  //     // Determine how many complaints exist (how many columns are used)
-  //     const existingComplaints = [result.complain_1, result.complain_2, result.complain_3];
-  //     const complaintCount = existingComplaints.filter(Boolean).length;
-
-  //     if (complaintCount < 3) {
-  //       // There is space for a new complaint, find the next available column
-  //       const nextColumnIndex = existingComplaints.findIndex(complaint => !complaint);
-  //       const columnName = `complain_${nextColumnIndex + 1}`;
-
-  //       // Update the corresponding column with the new complaint
-  //       db.none(
-  //         `UPDATE complaintbox SET ${columnName} = $1 WHERE id = $2`,
-  //         [complaintText, id]
-  //       )
-  //         .then(() => {
-  //           res.send("Your complaint has been received and updated.");
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error updating the database:", error);
-  //           res.status(500).send("Error updating the database");
-  //         });
-  //     } else {
-  //       // Limit of 3 complaints reached
-  //       res.send("Only 3 complaints are allowed to be open at a time");
-  //     }
-  //   })
-  //   .catch((error) => {
-  //     console.error("Error fetching existing data from the database:", error);
-  //     res.status(500).send("Error fetching existing data from the database");
-  //   });
+  db.none(sql, [id])
+    .then(() => {
+      console.log(`Complaint "${complaintkey}" deleted for ID ${id}.`);
+      // Optionally, you can redirect or send a response
+      res.redirect("/userinfo&id=" + id);
+    })
+    .catch((error) => {
+      console.error("Error deleting the complaint:", error);
+      res.status(500).send("Error deleting the complaint");
+    });
 
 
-
-  // db.any('SELECT * FROM complaintbox WHERE id = $1', [id])
-  //   .then((results) => {
-  //     // Log the results to the console
-  //     console.log('Data retrieved from complaintbox table:', results);
-  //   })
-  //   .catch((error) => {
-  //     console.error('Error fetching data from the complaintbox table:', error);
-  //     res.status(500).send('Error fetching data from the complaintbox table');
-  //   });
 });

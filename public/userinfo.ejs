@@ -1,0 +1,67 @@
+<%- include("header.ejs") %>
+
+
+    <link rel="stylesheet" href="userinfo.css">
+    <section class="black-box">
+        <nav>
+            <h2>User Profile</h2>
+            <h3>Id: <%= id %>
+            </h3>
+        </nav>
+
+        <section class="page-description">
+            <h1>Hello <%= id %>, </h1>
+            <p>Your requested issues are lodged here.</p>
+        </section>
+    </section>
+    <div class="white-box">
+        <section class="complaint-description">
+
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Complain</th>
+                        <th>Status</th>
+                        <th>Click To Resolve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let complaintKey in complains) { %>
+                        <% let complaint=complains[complaintKey]; %>
+                            <tr>
+                                <form method="POST" action="/resolve-complaint&id=<%= id %>">
+                                    <input type="hidden" name="complaintKey" value="<%= complaintKey %>">
+                                    <th>
+                                        <% if (complaint && complaint.text) { %>
+                                            <%= complaint.text %>
+                                                <% } %>
+                                    </th>
+                                    <td>
+                                        <% if (complaint && complaint.status) { %>
+                                            <%= complaint.status %>
+                                                <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (complaint && complaint.text) { %>
+
+                                            <button type="submit" class="resolve-btn">Resolve</button>
+                                            <% } %>
+                                    </td>
+                                </form>
+                            </tr>
+
+                </tbody>
+                <% } %>
+            </table>
+
+
+
+        </section>
+
+        <section class="complain-button-section">
+            <a href="/select-building&id=<%= id %>"><button class="complain-btn" style="margin-top: 12px;">Push a
+                    Complain</button></a>
+        </section>
+    </div>
+    <%- include("footer.ejs") %>
