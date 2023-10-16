@@ -2,7 +2,7 @@
 
 <div class="flex-column">
     <div class="header">
-        <h1>Admin Page</h1>
+        <h1>Complain Page</h1>
     </div>
     <div class="table-section">
         <table>
@@ -19,7 +19,7 @@
                 <% for (var row of complainslist) { %>
                     <% for (var complaintKey in row.complains) { %>
                         <% const blockNumber=row.complains[complaintKey].block; %>
-                            <% if (blockNumber==='1' ) { %>
+                            <% if (btnval==='0' || blockNumber===btnval ) { %>
                                 <tr>
                                     <td>
                                         <%= row.complains[complaintKey].block %>
@@ -39,11 +39,16 @@
                                     </th>
                                 </tr>
                                 <% } %>
+
                                     <% } %>
                                         <% } %>
             </tbody>
 
 
         </table>
+        <form action="/backtoadmin" method="post">
+            <button class="submit-btn" type="submit">Return To Admin Page</button>
+        </form>
     </div>
+
 </div>

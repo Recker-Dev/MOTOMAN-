@@ -1,0 +1,51 @@
+<body>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="adminform.css">
+
+    <div class="flex-column">
+        <div class="header">
+            <h1>Admin Page</h1>
+        </div>
+        <h2>Click on Block No to show respective complains</h2>
+        <div class="form-section">
+            <form action="/admin" name="adminForm" method="post">
+                <div>
+                    <button class="submit-btn" value="1" type="submit">Block 1</button>
+                    <button class="submit-btn" value="2" type="submit">Block 2</button>
+                    <button class="submit-btn" value="3" type="submit">Block 3</button>
+                    <button class="submit-btn" value="4" type="submit">Block 4</button>
+                    <button class="submit-btn" value="5" type="submit">Block 5</button>
+                    <button class="submit-btn" value="6" type="submit">Block 6</button>
+                </div>
+                <h2 style="margin-top: 52px;">Click here to get all complains </h2>
+                <button class="submit-btn show-all" value="0" type="submit">Show all</button>
+
+
+            </form>
+        </div>
+    </div>
+    <!-- THE FOLLOWING SCRIPT ADDS A NAME TO THE BUTTON CLICKED ALLOWING US TO ACCESS THE VALUE AND USING THAT SHORLISTING  -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const blockForm = document.querySelector('form[name="adminForm"]');
+
+            // Attach a click event listener to all buttons inside the form
+            const buttons = blockForm.querySelectorAll('button');
+
+            buttons.forEach(button => {
+
+                // Remove the 'name' attribute from all buttons
+                buttons.forEach(btn => {
+                    btn.removeAttribute('name');
+                });
+
+                button.addEventListener('click', function (event) {
+                    // Add the 'name' attribute to the clicked button
+                    this.setAttribute('name', 'btnval');
+                });
+            });
+        });
+    </script>
+
+</body>

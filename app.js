@@ -304,13 +304,30 @@ app.post("/resolve-complaint&id=:id", (req, res) => {
 });
 
 app.get("/administrator", (req, res) => {
+  const btnval = req.query.btnval.toString();
+
   db.query('SELECT complains FROM complaintbox')
     .then((results) => {
       console.log(results);
-      res.render(__dirname + "/public/admin.ejs", { complainslist: results });
+      res.render(__dirname + "/public/admin.ejs", { complainslist: results, btnval: btnval });
     })
     .catch((error) => {
       console.error("Error fetching existing data from the database:", error);
       res.status(500).send("Error fetching existing data from the database");
     });
-})
+});
+
+app.get("/admin", (req, res) => {
+  res.render(__dirname + "/public/adminform.ejs");
+
+});
+
+app.post("/admin", (req, res) => {
+  const value = req.body.btnval;
+  res.redirect(`/administrator?btnval=${value}`);
+
+});
+
+app.post("/backtoadmin", (req, res) => {
+  res.redirect("/admin");
+});
