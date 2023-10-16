@@ -22,17 +22,31 @@ FONT SIZE SYSTEM (px)
     font-family: "Inter", sans-serif;
     color: #343a40;
     /* border-bottom: 8px solid #087f5b; */
-    display: flex;
-    justify-content: center;
-    margin-top: 100px;
-    text-align: left;
+ 
+    /* margin-top: 100px; */
+    text-align: center;
+    
+  }
+
+  .flex-column{
     display: flex;
     flex-direction: column;
     align-items: center;
     row-gap: 54px;
-    
   }
   
+.header{
+  width: 100%;
+  padding: 3% 3%;
+  text-align: center;
+  background-color:#32325d; 
+}
+
+h1{
+  display: inline;
+  color: white;
+}
+
   table {
     /* border: 2px solid #087f5b; */
     width: 800px;
@@ -43,10 +57,11 @@ FONT SIZE SYSTEM (px)
   td {
     /* border: 2px solid #087f5b; */
     padding: 16px 24px;
+    text-align: center;
   }
   
   thead th {
-    background-color: #087f5b;
+    background-color: #090918;
     color: white;
     width: 25%;
   }
@@ -59,3 +74,4 @@ FONT SIZE SYSTEM (px)
     background-color: #f8f9fa;
   }
   
+ 

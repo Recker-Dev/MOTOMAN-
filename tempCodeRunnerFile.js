@@ -1,0 +1,1 @@
+SELECT complains FROM complaintbox

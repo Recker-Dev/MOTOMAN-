@@ -302,3 +302,15 @@ app.post("/resolve-complaint&id=:id", (req, res) => {
 
 
 });
+
+app.get("/administrator", (req, res) => {
+  db.query('SELECT complains FROM complaintbox')
+    .then((results) => {
+      console.log(results);
+      res.render(__dirname + "/public/admin.ejs", { complainslist: results });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.status(500).send("Error fetching existing data from the database");
+    });
+})

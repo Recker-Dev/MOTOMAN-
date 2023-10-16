@@ -1,0 +1,49 @@
+<link rel="stylesheet" href="admin.css">
+
+<div class="flex-column">
+    <div class="header">
+        <h1>Admin Page</h1>
+    </div>
+    <div class="table-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Block</th>
+                    <th>Wing</th>
+                    <th>Floor</th>
+                    <th>Room Number</th>
+                    <th>Complain</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (var row of complainslist) { %>
+                    <% for (var complaintKey in row.complains) { %>
+                        <% const blockNumber=row.complains[complaintKey].block; %>
+                            <% if (blockNumber==='1' ) { %>
+                                <tr>
+                                    <td>
+                                        <%= row.complains[complaintKey].block %>
+                                    </td>
+                                    <td>
+                                        <%= row.complains[complaintKey].wing %>
+                                    </td>
+                                    <td>
+                                        <%= row.complains[complaintKey].floor %>
+                                    </td>
+                                    <td>
+
+                                        <%= row.complains[complaintKey].roomNumber %>
+                                    </td>
+                                    <th>
+                                        <%= row.complains[complaintKey].text %>
+                                    </th>
+                                </tr>
+                                <% } %>
+                                    <% } %>
+                                        <% } %>
+            </tbody>
+
+
+        </table>
+    </div>
+</div>
