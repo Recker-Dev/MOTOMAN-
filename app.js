@@ -264,7 +264,7 @@ app.get("/userinfo&id=:id", (req, res) => {
 
   db.one('SELECT complains FROM complaintbox WHERE id = $1', [req.params.id])
     .then((result) => {
-      const complains = result ? result.complains : {}; // Use result if it exists, or an empty object
+
       res.render(__dirname + "/public/userinfo.ejs", { id: req.params.id, complains: result.complains })
     }).catch((error) => {
       console.error("Error fetching existing data from the database:", error);
