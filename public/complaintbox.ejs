@@ -1,61 +1,80 @@
 <%- include("header.ejs") %>
 
-
     <link rel="stylesheet" href="complaintbox.css">
-    <h1>CLEANING SERVICES</h1>
+    <!-- <h1>CLEANING SERVICES</h1> -->
 
     <div class="container">
-        <form action="/submit-complaint&id=<%=id%>&buildingtype=<%=type%>&block=<%=block %>" method="POST">
+        <form action="/submit-complaint&id=<%= id %>&buildingtype=<%= type %>&block=<%= block %>" method="POST">
             <label>
-                <%=type %> BLOCK <%=block %>
+                <%= type %> BLOCK <%= block %>
             </label>
-            <label for="wing">Wing:</label>
-            <select required id="wing" name="wing">
-                <option value="A">A</option>
-                <option value="B">B</option>
-            </select>
-            <br><br>
+            <% if (type==="ACADEMIC-" ) { %>
+                <% var floors=5; %>
+                    <% var roomnos=32; %>
+                        <% } else if (type==="BOY'S-HOSTEL" ) { %>
+                            <% var floors=7; %>
+                                <% var roomnos=53; %>
+                                    <% } else if (type==="GIRL'S-HOSTEL" ) { %>
+                                        <% var floors=7; %>
+                                            <% var roomnos=53; %>
+                                                <% } %>
+                                                    <label for="wing">Wing:</label>
+                                                    <select required id="wing" name="wing">
+                                                        <option value="A">A</option>
+                                                        <option value="B">B</option>
+                                                    </select>
+                                                    <br><br>
 
-            <label for="floor">Floor:</label>
-            <select required id="floor" name="floor">
-                <% for (let i=0; i <=7; i++) { %>
-                    <option value="<%= i %>">
-                        <%= i %>
-                    </option>
-                    <% } %>
-            </select>
-            <br><br>
+                                                    <label for="floor">Floor:</label>
+                                                    <select required id="floor" name="floor">
+                                                        <% for (let i=0; i <=floors; i++) { %>
+                                                            <option value="<%= i %>">
+                                                                <%= i %>
+                                                            </option>
+                                                            <% } %>
+                                                    </select>
+                                                    <br><br>
 
-            <label for="roomNumber">Room Number:</label>
-            <select required id="roomNumber" name="roomNumber">
-                <% for (let i=1; i <=53; i++) { %>
-                    <option value="<%= i %>">
-                        <%= i %>
-                    </option>
-                    <% } %>
+                                                    <label for="roomNumber">Room Number:</label>
+                                                    <select required id="roomNumber" name="roomNumber">
+                                                        <% for (let i=1; i <=roomnos; i++) { %>
+                                                            <option value="<%= i %>">
+                                                                <%= i %>
+                                                            </option>
+                                                            <% } %>
+                                                    </select>
+                                                    <br><br>
 
-            </select>
-            <br><br>
+                                                    <label for="complaintype">Complain Type:</label>
+                                                    <select required id="complaintype" name="complaintype">
 
+                                                        <option value="1">Electric</option>
+                                                        <option value="2">Wifi</option>
+                                                        <option value="3">Plumber</option>
+                                                        <option value="4">Cleanliness</option>
+                                                    </select>
+                                                    <br><br>
 
-            <label for="timing">Timing:</label>
-            <select required id="timing" name="timing">
-                <option value="10AM-2PM">10AM-2PM</option>
-                <option value="5PM-9PM">5PM-9PM</option>
-            </select>
-            <br><br>
+                                                    <label for="timing">Timing:</label>
+                                                    <select required id="timing" name="timing">
+                                                        <option value="10AM-2PM">10AM-2PM</option>
+                                                        <option value="5PM-9PM">5PM-9PM</option>
+                                                    </select>
+                                                    <br><br>
 
-            <textarea name="complaintText" type="text" rows="4" maxlength='750' required placeholder="Your Complaint"
-                style="width: 100%;"></textarea>
+                                                    <textarea name="complaintText" type="text" rows="4" maxlength='750'
+                                                        required placeholder="Your Complaint"
+                                                        style="width: 100%;"></textarea>
+                                                    <br>
+                                                    <br>
 
-            <br>
-            <br>
-            <input type="file" id="img" name="img" accept="image/*">
-            <br>
-            <br>
-            <button type="submit" style="width: 100%;"> SUBMIT COMPLAINT </button>
+                                                    <input type="file" id="img" name="img" accept="image/*">
+                                                    <br>
+                                                    <br>
+
+                                                    <button type="submit" style="width: 100%;"> SUBMIT COMPLAINT
+                                                    </button>
         </form>
     </div>
-
 
     <%- include("footer.ejs") %>

@@ -62,7 +62,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     secure: true, // Set to true for HTTPS
-    maxAge: 60000, // Session expires after 60 seconds
+    maxAge: 600000, // Session expires after 60 seconds
     httpOnly: true,
   }
 }));
@@ -155,6 +155,28 @@ app.get("/boyshostel&id=:id&buildingtype=:type", function (req, res) {
 });
 
 
+app.get("/academicblock&id=:id&buildingtype=:type", function (req, res) {
+  // console.log(req.params.id)
+  // console.log(req.params.type)
+  if (req.params.id == userID) {
+    res.render(__dirname + "/public/academicblock.ejs", { id: req.params.id, type: req.params.type });
+  }
+  else {
+    res.redirect('/login')
+  }
+});
+
+app.get("/girlshostel&id=:id&buildingtype=:type", function (req, res) {
+  // console.log(req.params.id)
+  // console.log(req.params.type)
+  if (req.params.id == userID) {
+    res.render(__dirname + "/public/girlshostel.ejs", { id: req.params.id, type: req.params.type });
+  }
+  else {
+    res.redirect('/login')
+  }
+});
+
 
 app.get('/complaint&id=:id&buildingtype=:type&block=:block', (req, res) => {
   res.render(__dirname + "/public/complaintbox.ejs", { id: req.params.id, type: req.params.type, block: req.params.block })
@@ -171,11 +193,33 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) 
   const floor = req.body.floor;
   const roomNumber = req.body.roomNumber;
   const timing = req.body.timing;
+  const complaintype = req.body.complaintype;
 
-  complaintText = req.body.complaintText;
+  const complaintText = req.body.complaintText;
+
+  var tableName;
+  switch (complaintype) {
+    case '1':
+      tableName = 'electric';
+      break;
+    case '2':
+      tableName = 'wifi';
+      break;
+    case '3':
+      tableName = 'plumber';
+      break;
+    case '4':
+      tableName = 'clean';
+      break;
+    // Add more cases for other complaint types if needed
+  }
+
+  console.log(complaintype);
+  console.log(tableName);
 
 
-  db.oneOrNone('SELECT id FROM complaintbox WHERE id = $1', [id])
+  // Check if the id exists in the specified table
+  db.oneOrNone('SELECT id FROM ' + tableName + ' WHERE id = $1', [id])
     .then((result) => {
       if (result) {
         // The id already exists in the complaintbox table, no need to insert it again
@@ -186,15 +230,15 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) 
       }
     })
     .catch((error) => {
-      console.error('Error checking id existence in complaintbox:', error);
-      res.status(500).send('Error checking id existence in complaintbox');
+      console.error(`Error checking id existence in ${tableName}:`, error);
+      res.status(500).send(`Error checking id existence in ${tableName}`);
     });
 
   // Function to insert the id into the complaintbox table
   function insertIdIntoComplaintBox() {
-    db.none('INSERT INTO complaintbox (id) VALUES ($1)', [id])
+    db.none('INSERT INTO $1~ (id) VALUES ($2)', [tableName, id])
       .then(() => {
-        console.log('New ID added to the complaintbox table.');
+        console.log(`New ID added to the ${tableName} table.`);
         // Proceed with complaint handling logic
         return proceedWithComplaintHandling();
       })
@@ -208,10 +252,9 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) 
   function proceedWithComplaintHandling() {
     // Your existing complaint handling logic here
     // ...
-    db.one('SELECT complains FROM complaintbox WHERE id = $1', [id])
+    db.one(`SELECT complains FROM $1:name WHERE id = $2`, [tableName, id])
       .then((result) => {
         const existingComplains = result.complains || {}; // Parse the JSON data
-
 
         // Determine how many complaints exist
         const complaintCount = Object.keys(existingComplains).length;
@@ -228,17 +271,19 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) 
             wing: wing,
             floor: floor,
             roomNumber: roomNumber,
-            timing: timing
+            timing: timing,
+            complaintype: complaintype,
+            tablename: tableName,
+            complaintIndex: newComplaintIndex
           };
 
           // Update the "complains" JSON column with the new JSON data
           db.none(
-            'UPDATE complaintbox SET complains = $1 WHERE id = $2',
-            [existingComplains, id]
+            `UPDATE $1:name SET complains = $2 WHERE id = $3`,
+            [tableName, existingComplains, id]
           )
             .then(() => {
-
-              res.redirect("/userinfo&id=" + req.params.id)
+              res.redirect("/userinfo&id=" + req.params.id);
             })
             .catch((error) => {
               console.error("Error updating the database:", error);
@@ -257,34 +302,54 @@ app.post("/submit-complaint&id=:id&buildingtype=:type&block=:block", (req, res) 
 
 
 
+
 });
 
+// app.get("/userinfo&id=:id", (req, res) => {
+
+
+//   db.one('SELECT complains FROM complaintbox WHERE id = $1', [req.params.id])
+//     .then((result) => {
+
+//       res.render(__dirname + "/public/userinfo.ejs", { id: req.params.id, complains: result.complains })
+//     }).catch((error) => {
+//       console.error("Error fetching existing data from the database:", error);
+//       res.status(500).send("Error fetching existing data from the database");
+//     });
+
+// });
+
+
+// DOING INITIAL REDIRECTION TO LOAD PAGE
 app.get("/userinfo&id=:id", (req, res) => {
+  const uid = req.params.id; // Get the id from the request params
 
 
-  db.one('SELECT complains FROM complaintbox WHERE id = $1', [req.params.id])
-    .then((result) => {
-
-      res.render(__dirname + "/public/userinfo.ejs", { id: req.params.id, complains: result.complains })
-    }).catch((error) => {
-      console.error("Error fetching existing data from the database:", error);
-      res.status(500).send("Error fetching existing data from the database");
-    });
+  res.render(__dirname + "/public/userinfo.ejs", { id: uid });
 
 });
 
+// DOING REDIRECTION TO WIFI ISSUES PAGE
+app.get("/wifi&id=:id", (req, res) => {
+  const uid = req.params.id;
+  db.query('SELECT complains FROM wifi WHERE id = $1', [req.params.id])
+    .then((result) => {
+      console.log(result[0].complains); // Corrected to use result[0].complains
+      res.render(__dirname + "/public/usercomplain.ejs", { id: req.params.id, complains: result[0].complains });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.send("Error fetching existing data from the database");
+    });
+});
 
-app.post("/resolve-complaint&id=:id", (req, res) => {
+app.post("/resolve-wifi&id=:id", (req, res) => {
 
   const complaintkey = req.body.complaintKey;
   const id = req.params.id;
-  console.log(complaintkey);
-  console.log(id);
 
-
-  // Build the SQL statement to delete a specific complaint from the "complains" JSON object
   const sql = `
-  UPDATE complaintbox
+  UPDATE wifi
   SET complains = complains - '${complaintkey}' -- Remove the key
   WHERE id = $1
   `;
@@ -293,41 +358,229 @@ app.post("/resolve-complaint&id=:id", (req, res) => {
     .then(() => {
       console.log(`Complaint "${complaintkey}" deleted for ID ${id}.`);
       // Optionally, you can redirect or send a response
-      res.redirect("/userinfo&id=" + id);
+      res.redirect("/wifi&id=" + id);
     })
     .catch((error) => {
       console.error("Error deleting the complaint:", error);
       res.status(500).send("Error deleting the complaint");
     });
 
-
 });
 
-app.get("/administrator", (req, res) => {
-  const btnval = req.query.btnval.toString();
 
-  db.query('SELECT complains FROM complaintbox')
-    .then((results) => {
-      console.log(results);
-      res.render(__dirname + "/public/admin.ejs", { complainslist: results, btnval: btnval });
+// DOING REDIRECTION FOR ELECTRICAL PROBLEMS
+app.get("/electric&id=:id", (req, res) => {
+  const uid = req.params.id;
+  db.query('SELECT complains FROM electric WHERE id = $1', [req.params.id])
+    .then((result) => {
+      console.log(result[0].complains); // Corrected to use result[0].complains
+      res.render(__dirname + "/public/usercomplain.ejs", { id: req.params.id, complains: result[0].complains });
     })
     .catch((error) => {
       console.error("Error fetching existing data from the database:", error);
-      res.status(500).send("Error fetching existing data from the database");
+      res.send("Error fetching existing data from the database");
     });
 });
+
+app.post("/resolve-electric&id=:id", (req, res) => {
+
+  const complaintkey = req.body.complaintKey;
+  const id = req.params.id;
+
+  const sql = `
+  UPDATE electric
+  SET complains = complains - '${complaintkey}' -- Remove the key
+  WHERE id = $1
+  `;
+
+  db.none(sql, [id])
+    .then(() => {
+      console.log(`Complaint "${complaintkey}" deleted for ID ${id}.`);
+      // Optionally, you can redirect or send a response
+      res.redirect("/electric&id=" + id);
+    })
+    .catch((error) => {
+      console.error("Error deleting the complaint:", error);
+      res.status(500).send("Error deleting the complaint");
+    });
+
+});
+
+// DOING REDIRECTION TO PLUMBER ISSUES PAGE
+app.get("/plumber&id=:id", (req, res) => {
+  const uid = req.params.id;
+  db.query('SELECT complains FROM plumber WHERE id = $1', [req.params.id])
+    .then((result) => {
+      console.log(result[0].complains); // Corrected to use result[0].complains
+      res.render(__dirname + "/public/usercomplain.ejs", { id: req.params.id, complains: result[0].complains });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.send("Error fetching existing data from the database");
+    });
+});
+
+app.post("/resolve-plumber&id=:id", (req, res) => {
+
+  const complaintkey = req.body.complaintKey;
+  const id = req.params.id;
+
+  const sql = `
+  UPDATE plumber
+  SET complains = complains - '${complaintkey}' -- Remove the key
+  WHERE id = $1
+  `;
+
+  db.none(sql, [id])
+    .then(() => {
+      console.log(`Complaint "${complaintkey}" deleted for ID ${id}.`);
+      // Optionally, you can redirect or send a response
+      res.redirect("/plumber&id=" + id);
+    })
+    .catch((error) => {
+      console.error("Error deleting the complaint:", error);
+      res.status(500).send("Error deleting the complaint");
+    });
+
+});
+
+// DOING REDIRECTION TO CLEANLINESS ISSUES PAGE
+app.get("/clean&id=:id", (req, res) => {
+  const uid = req.params.id;
+  db.query('SELECT complains FROM clean WHERE id = $1', [req.params.id])
+    .then((result) => {
+      console.log(result[0].complains); // Corrected to use result[0].complains
+      res.render(__dirname + "/public/usercomplain.ejs", { id: req.params.id, complains: result[0].complains });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.send("Error fetching existing data from the database");
+    });
+});
+
+app.post("/resolve-clean&id=:id", (req, res) => {
+
+  const complaintkey = req.body.complaintKey;
+  const id = req.params.id;
+
+  const sql = `
+  UPDATE clean
+  SET complains = complains - '${complaintkey}' -- Remove the key
+  WHERE id = $1
+  `;
+
+  db.none(sql, [id])
+    .then(() => {
+      console.log(`Complaint "${complaintkey}" deleted for ID ${id}.`);
+      // Optionally, you can redirect or send a response
+      res.redirect("/clean&id=" + id);
+    })
+    .catch((error) => {
+      console.error("Error deleting the complaint:", error);
+      res.status(500).send("Error deleting the complaint");
+    });
+
+});
+
+
+
+
 
 app.get("/admin", (req, res) => {
   res.render(__dirname + "/public/adminform.ejs");
 
 });
 
-app.post("/admin", (req, res) => {
-  const value = req.body.btnval;
-  res.redirect(`/administrator?btnval=${value}`);
+// ***********************************************************************************************************************************
+// ADMIN SIDE LOGIC
+// ***********************************************************************************************************************************
 
-});
 
 app.post("/backtoadmin", (req, res) => {
   res.redirect("/admin");
+});
+
+app.get("/electric", (req, res) => {
+
+  res.redirect('/electricissues');
+
+});
+
+app.get("/electricissues", (req, res) => {
+
+  db.query('SELECT complains FROM electric')
+    .then((results) => {
+      console.log(results);
+      res.render(__dirname + "/public/segregatedcomplains.ejs", { section: "Electrical", complains: results });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.status(500).send("Error fetching existing data from the database");
+    });
+
+
+});
+
+app.get("/wifi", (req, res) => {
+
+  res.redirect('/wifiissues');
+
+});
+
+app.get("/wifiissues", (req, res) => {
+
+  db.query('SELECT complains FROM wifi')
+    .then((results) => {
+      console.log(results);
+      res.render(__dirname + "/public/segregatedcomplains.ejs", { section: "Wifi", complains: results });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.status(500).send("Error fetching existing data from the database");
+    });
+
+
+});
+
+app.get("/plumber", (req, res) => {
+
+  res.redirect('/plumbingissues');
+
+});
+
+app.get("/plumbingissues", (req, res) => {
+
+  db.query('SELECT complains FROM plumber')
+    .then((results) => {
+      console.log(results);
+      res.render(__dirname + "/public/segregatedcomplains.ejs", { section: "Plumbing", complains: results });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.status(500).send("Error fetching existing data from the database");
+    });
+
+
+});
+
+
+app.get("/cleanliness", (req, res) => {
+
+  res.redirect('/cleanlinessissues');
+
+});
+
+app.get("/cleanlinessissues", (req, res) => {
+
+  db.query('SELECT complains FROM clean')
+    .then((results) => {
+      console.log(results);
+      res.render(__dirname + "/public/segregatedcomplains.ejs", { section: "Cleanliness", complains: results });
+    })
+    .catch((error) => {
+      console.error("Error fetching existing data from the database:", error);
+      res.status(500).send("Error fetching existing data from the database");
+    });
+
+
 });

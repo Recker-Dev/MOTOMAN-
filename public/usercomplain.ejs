@@ -36,7 +36,25 @@
                 </thead>
 
 
-
+                <tbody>
+                    <% for (let complaintKey in complains) { %>
+                        <% let complaint=complains[complaintKey]; %>
+                            <tr>
+                                <td>
+                                    <%= complaint.text %>
+                                </td>
+                                <td>
+                                    <%= complaint.status %>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/resolve-<%= complaint.tablename %>&id=<%=id %>">
+                                        <input type="hidden" name="complaintKey" value="<%= complaintKey %>">
+                                        <button type="submit" class="resolve-btn">Resolve</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% } %>
+                </tbody>
 
             </table>
 

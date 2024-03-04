@@ -1,0 +1,56 @@
+<link rel="stylesheet" href="admin.css">
+
+<div class="flex-column">
+    <div class="header">
+        <h1>
+            <%= section %> Complains
+        </h1>
+    </div>
+    <div class="table-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Block</th>
+                    <th>Wing</th>
+                    <th>Floor</th>
+                    <th>Room Number</th>
+                    <th>Complain</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i=0; i < complains.length; i++) { %>
+                    <% let complaint=complains[i].complains; %>
+                        <% for (let complaintKey in complaint) { %>
+                            <tr>
+                                <% let singleComplaint=complaint[complaintKey]; %>
+                                    <td>
+                                        <%= singleComplaint.block %>
+                                    </td>
+                                    <td>
+                                        <%= singleComplaint.wing %>
+                                    </td>
+                                    <td>
+                                        <%= singleComplaint.floor %>
+                                    </td>
+                                    <td>
+                                        <%= singleComplaint.roomNumber %>
+                                    </td>
+                                    <td>
+                                        <%= singleComplaint.text %>
+                                    </td>
+
+                            </tr>
+                            <% } %>
+                                <% } %>
+
+            </tbody>
+
+
+
+        </table>
+        <form action="/backtoadmin" method="post">
+            <button class="submit-btn" type="submit">Return To Admin Page</button>
+        </form>
+    </div>
+
+</div>

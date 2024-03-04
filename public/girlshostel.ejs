@@ -1,0 +1,23 @@
+<%- include("header.ejs") %>
+
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="girlshostel.css" />
+
+
+    <div class=" container-blockselection">
+        <h1 style="color: black; text-align: center">ACADEMIC BUILDING</h1>
+        <section class="card-flex">
+            <% for (let i=1; i <=2; i++) { %>
+
+                <a href="/complaint&id=<%=id%>&buildingtype=<%=type%>&block=<%=i%>">
+                    <p class="glass-card">BLock <%= i %>
+                    </p>
+                </a>
+
+
+                <% } %>
+        </section>
+
+    </div>
+
+    <%- include("footer.ejs") %>
